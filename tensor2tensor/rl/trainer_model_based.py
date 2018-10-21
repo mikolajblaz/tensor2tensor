@@ -45,6 +45,8 @@ from tensor2tensor.utils import trainer_lib
 
 import tensorflow as tf
 
+from tensor2tensor.rl.envs.dopamine_batch_env import create_runner
+
 
 flags = tf.flags
 FLAGS = flags.FLAGS
@@ -226,8 +228,13 @@ def train_agent(real_env, environment_spec, agent_model_dir,
         "output_dir": world_model_dir,
         "data_dir": data_dir,
     }):
-      rl_trainer_lib.train(ppo_hparams, event_dir + "sim", agent_model_dir,
-                           name_scope="ppo_sim%d" % (epoch + 1))
+      # rl_trainer_lib.train(ppo_hparams, event_dir + "sim", agent_model_dir,
+      #                      name_scope="ppo_sim%d" % (epoch + 1))
+
+      # TODO: use only one runner, don't create new one in each epoch call
+      runner = create_runner(ppo_hparams)
+      # TODO: instead of running whole experiment, call just e.g. `runner._run_one_iteration`
+      runner.run_experiment()
 
   return ppo_epochs_num
 
